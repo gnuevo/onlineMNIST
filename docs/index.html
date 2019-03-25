@@ -7,7 +7,7 @@
   <script>
       async function main() {
           console.log("Fetching the model")
-          const model_ = await tf.loadModel('http://127.0.0.1:8000/js/model.json');
+          const model_ = await tf.loadModel('https://gnuevo.github.io/onlineMNIST/js/model.json');
           // const model = await tf.loadLayersModel('http://127.0.0.1:8000/js/model.json'); // it doesnt' work in 0.13.3
           console.log("I can't believe it worked! :O");
           // const example = tf.fromPixels(webcamElement);
