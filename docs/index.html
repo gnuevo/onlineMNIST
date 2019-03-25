@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://unpkg.com/konva@3.2.3/konva.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
+  <script>
+      async function main() {
+          console.log("Fetching the model")
+          const model_ = await tf.loadModel('http://127.0.0.1:8000/js/model.json');
+          // const model = await tf.loadLayersModel('http://127.0.0.1:8000/js/model.json'); // it doesnt' work in 0.13.3
+          console.log("I can't believe it worked! :O");
+          // const example = tf.fromPixels(webcamElement);
+          console.log("Here");
+          return model_;
+      }
+      const model = main();
+      /*
+      The returned model is a Promise
+      model.then(function(m) { m.summary()});
+      */
+  </script>
+  <meta charset="utf-8">
+  <title>Konva Free Drawing Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #F0F0F0;
+    }
+  </style>
+</head>
+
+<body>
+  Tool:
+  <select id="tool">
+    <option value="brush">Brush</option>
+    <option value="eraser">Eraser</option>
+  </select>
+  <div id="container"></div>
+  <canvas id="dest" width="28" height="28"></canvas>
+  <button type="button" onclick="predict()">Predict</button>
+  <br/>
+  <p id="guess"></p>
+  <!--<img id="frame" width="280" height="280" style="border-style:solid;"></img>-->
+  <script>
+    var width = window.innerWidth;
+    var height = window.innerHeight - 25;
+
+    // first we need Konva core things: stage and layer
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: 280,
+      height: 280
+    });
+
+    var layer = new Konva.Layer();
+    stage.add(layer);
+
+    var destCanvas = document.getElementById("dest");
+
+    // then we are going to draw into special canvas element
+    var canvas = document.createElement('canvas');
+    canvas.id = "mycanvas";
+    canvas.width = stage.width() / 2;
+    canvas.height = stage.height() / 2;
+
+    // created canvas we can add to layer as "Konva.Image" element
+    var image = new Konva.Image({
+      image: canvas,
+      x: stage.width() / 4,
+      y: stage.height() / 4,
+      stroke: 'green',
+      shadowBlur: 1
+    });
+    layer.add(image);
+    stage.draw();
+
+    // Good. Now we need to get access to context element
+    var context = canvas.getContext('2d');
+    context.strokeStyle = "#000000";
+    context.lineJoin = "round";
+    context.lineWidth = 10;
+
+
+    var isPaint = false;
+    var lastPointerPosition;
+    var mode = 'brush';
+
+
+    // now we need to bind some events
+    // we need to start drawing on mousedown
+    // and stop drawing on mouseup
+    image.on('mousedown touchstart', function () {
+      isPaint = true;
+      lastPointerPosition = stage.getPointerPosition();
+
+
+
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        // destCtx.clearRect(0, 0, 28, 28);
+    });
+
+    // will it be better to listen move/end events on the window?
+    var imgArray = Array(28);
+    for (var i=0; i < imgArray.length; i++) {
+        imgArray[i] = new Array(28).fill(0);
+    }
+    stage.addEventListener('mouseup touchend', function () {
+      isPaint = false;
+
+
+      var destCtx = destCanvas.getContext("2d");
+      destCtx.clearRect(0, 0, 28, 28);
+      destCtx.drawImage(canvas, 0, 0, 28, 28);
+      // document.getElementById('frame').src = destCanvas.toDataURL("image/png");
+      predict();
+
+      // predict
+      // var imgData = destCtx.getImageData(0, 0, 28, 28);
+      //
+      // var canvasCtx = canvas.getContext("2d");
+      // canvasCtx.scale(0.1, 0.1);
+      // var imgData = canvasCtx.getImageData(0, 0, 28, 28);
+      //
+      // var pixels  = imgData.data;
+      // for (var i=0; i < pixels.length - 1; i += 4) {
+      //   console.log(i);
+      //   console.log(pixels[i], pixels[i+1], pixels[i+2]);
+      //   var grayscale = (pixels[i] + pixels[i+1] + pixels[i+2])/3.0;
+      //   grayscale = grayscale / 255.0;
+      //   grayscale = 1.0 - grayscale;
+      //   imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
+      // }
+      // console.log(imgArray);
+      //
+      // model.then(async function(m) {
+      //   var result = m.predict(tf.tensor([imgArray]));
+      //   result.print();
+      //   result = await result.data();
+      //   console.log(result);
+      //   console.log("Maximum ", Math.max(result));
+      //   var array =  Array.prototype.slice.call(result);
+      //   console.log(array);
+      //   console.log(Math.max.apply(Math, array));
+      //   var index = result.indexOf(Math.max.apply(Math, array));
+      //   console.log("I think it is ", index);
+      // });
+    });
+
+    function predict() {
+        document.getElementById('guess').innerHTML = "Pensando...";
+        // predict
+        var destCtx = destCanvas.getContext("2d");
+        var imgData = destCtx.getImageData(0, 0, 28, 28);
+        var pixels  = imgData.data;
+        for (var i=0; i < pixels.length - 1; i += 4) {
+          // console.log(i);
+          // console.log(pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]);
+          // var grayscale = (pixels[i] + pixels[i+1] + pixels[i+2])/3.0;
+          var grayscale = pixels[i+3];
+          grayscale = grayscale / 255.0;
+          // grayscale = 1.0 - grayscale;
+          imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
+          // imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
+        }
+        console.log(imgArray);
+
+        model.then(async function(m) {
+          var result = m.predict(tf.tensor([imgArray]));
+          result.print();
+          result = await result.data();
+          console.log(result);
+          console.log("Maximum ", Math.max(result));
+          var array =  Array.prototype.slice.call(result);
+          console.log(array);
+          console.log(Math.max.apply(Math, array));
+          var index = result.indexOf(Math.max.apply(Math, array));
+          console.log("I think it is ", index);
+          document.getElementById('guess').innerHTML = "Creo que es " + index;
+        });
+    }
+
+    // and core function - drawing
+    stage.addEventListener('mousemove touchmove', function () {
+      if (!isPaint) {
+        return;
+      }
+
+      if (mode === 'brush') {
+        context.globalCompositeOperation = 'source-over';
+      }
+      if (mode === 'eraser') {
+        context.globalCompositeOperation = 'destination-out';
+      }
+      context.beginPath();
+
+      var localPos = {
+        x: lastPointerPosition.x - image.x(),
+        y: lastPointerPosition.y - image.y()
+      };
+      context.moveTo(localPos.x, localPos.y);
+      var pos = stage.getPointerPosition();
+      localPos = {
+        x: pos.x - image.x(),
+        y: pos.y - image.y()
+      };
+      context.lineTo(localPos.x, localPos.y);
+      context.closePath();
+      context.stroke();
+
+
+      lastPointerPosition = pos;
+      layer.batchDraw();
+    });
+
+    var select = document.getElementById('tool');
+    select.addEventListener('change', function () {
+      mode = select.value;
+    });
+
+  </script>
+
+
+</body>
+
+</html>
