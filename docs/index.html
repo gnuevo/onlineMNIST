@@ -1,229 +1,362 @@
 <!DOCTYPE html>
-<html>
-
+<!--
+App by FreeHTML5.co
+Twitter: http://twitter.com/fh5co
+URL: http://freehtml5.co
+-->
+<html lang="en">
 <head>
-  <script src="https://unpkg.com/konva@3.2.3/konva.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
-  <script>
-      async function main() {
-          console.log("Fetching the model")
-          const model_ = await tf.loadModel('https://gnuevo.github.io/onlineMNIST/js/model.json');
-          // const model = await tf.loadLayersModel('http://127.0.0.1:8000/js/model.json'); // it doesnt' work in 0.13.3
-          console.log("I can't believe it worked! :O");
-          // const example = tf.fromPixels(webcamElement);
-          console.log("Here");
-          return model_;
-      }
-      const model = main();
-      /*
-      The returned model is a Promise
-      model.then(function(m) { m.summary()});
-      */
-  </script>
-  <meta charset="utf-8">
-  <title>Konva Free Drawing Demo</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #F0F0F0;
-    }
-  </style>
+	<meta charset="UTF-8">
+	<title>onlineMNIST</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Free HTML5 Website Template by FreeHTML5.co" />
+	<meta name="keywords" content="free website templates, free html5, free template, free bootstrap, free website template, html5, css3, mobile first, responsive" />
+	<meta name="author" content="FreeHTML5.co" />
+
+	<!-- Facebook and Twitter integration -->
+	<meta property="og:title" content=""/>
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content=""/>
+	<meta property="og:site_name" content=""/>
+	<meta property="og:description" content=""/>
+	<meta name="twitter:title" content="" />
+	<meta name="twitter:image" content="" />
+	<meta name="twitter:url" content="" />
+	<meta name="twitter:card" content="" />
+
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<!-- Owl Carousel  -->
+	<link rel="stylesheet" href="css/owl.carousel.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/style.css">
+
+	<script src="https://unpkg.com/konva@3.2.3/konva.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.13.3/dist/tf.min.js"></script>
+
+	<style>
+	/* .konvajs-content {
+	background-color: white;
+	padding: 100px;
+	} */
+	canvas {
+		background-color: rgba(230, 230, 230, 0.5);
+	}
+	</style>
 </head>
-
 <body>
-  Tool:
-  <select id="tool">
-    <option value="brush">Brush</option>
-    <option value="eraser">Eraser</option>
-  </select>
-  <div id="container"></div>
-  <canvas id="dest" width="28" height="28"></canvas>
-  <button type="button" onclick="predict()">Predict</button>
-  <br/>
-  <p id="guess"></p>
-  <!--<img id="frame" width="280" height="280" style="border-style:solid;"></img>-->
-  <script>
-    var width = window.innerWidth;
-    var height = window.innerHeight - 25;
-
-    // first we need Konva core things: stage and layer
-    var stage = new Konva.Stage({
-      container: 'container',
-      width: 280,
-      height: 280
-    });
-
-    var layer = new Konva.Layer();
-    stage.add(layer);
-
-    var destCanvas = document.getElementById("dest");
-
-    // then we are going to draw into special canvas element
-    var canvas = document.createElement('canvas');
-    canvas.id = "mycanvas";
-    canvas.width = stage.width() / 2;
-    canvas.height = stage.height() / 2;
-
-    // created canvas we can add to layer as "Konva.Image" element
-    var image = new Konva.Image({
-      image: canvas,
-      x: stage.width() / 4,
-      y: stage.height() / 4,
-      stroke: 'green',
-      shadowBlur: 1
-    });
-    layer.add(image);
-    stage.draw();
-
-    // Good. Now we need to get access to context element
-    var context = canvas.getContext('2d');
-    context.strokeStyle = "#000000";
-    context.lineJoin = "round";
-    context.lineWidth = 10;
 
 
-    var isPaint = false;
-    var lastPointerPosition;
-    var mode = 'brush';
+	<div id="page-wrap">
 
 
-    // now we need to bind some events
-    // we need to start drawing on mousedown
-    // and stop drawing on mouseup
-    image.on('mousedown touchstart', function () {
-      isPaint = true;
-      lastPointerPosition = stage.getPointerPosition();
+		<!-- ==========================================================================================================
+		HERO
+		========================================================================================================== -->
+
+		<div id="fh5co-hero-wrapper">
+			<nav class="container navbar navbar-expand-lg main-navbar-nav navbar-light">
+				<a class="navbar-brand" href="">onlineMNIST</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<!--
+					<ul class="navbar-nav nav-items-center ml-auto mr-auto">
+						<li class="nav-item active">
+							<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#" onclick="$('#fh5co-features').goTo();return false;">Features</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#" onclick="$('#fh5co-reviews').goTo();return false;">Reviews</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#"  onclick="$('#fh5co-download').goTo();return false;">Download</a>
+						</li>
+					</ul>
+				-->
+					<div class="social-icons-header">
+						<a href="https://github.com/gnuevo/onlineMNIST">Get code on Github <i class="fab fa-github"></i></a>
+					</div>
+				</div>
+			</nav>
+
+			<div class="container fh5co-hero-inner">
+				<h1 class="animated fadeIn wow" data-wow-delay="0.4s">Recognise MNIST digits online</h1>
+				<p class="animated fadeIn wow" data-wow-delay="0.67s">This is a demo that recongnises handwriten digits from in your browser. Click the "Download" button to donwload the network (about 6MB). Then you can write your number (0-9) inside the white square.</p>
+				<button id="download-btn" class="btn btn-md download-btn-first wow fadeInLeft animated" type="button" data-wow-delay="0.85s">
+					<span class="spinner-border spinner-border-sm" role="status"></span>
+					<span>Download</span>
+				</button>
+				<button id="clear-btn" class="btn btn-md features-btn-first animated fadeInLeft wow" data-wow-delay="0.95s">Clear canvas</button>
+				<br/>
+				<!--
+				<div class="container">
+				<div clas="row">
+					<div class="col-10">
+						<br/><br/>
+						<p>Good, now that you have downloaded the network you can start recognising digits.</p>
+						<h2 id="guess"></p>
+					</div>
+					<div class="col-md-8 col-xs-12">
+						<div id="canvas-container" class="float-right pagination-centered" style="background-color: rgba(230, 230, 230, 0.5);"></div>
+						<canvas id="dest" width="28" height="28"></canvas>
+					</div>
+					</div>
+				</div>
+			-->
+					<!--<img class="fh5co-hero-smartphone animated fadeInRight wow" data-wow-delay="1s" src="img/phone-image.png" alt="Smartphone">-->
+				</div>
+
+				<div class="container">
+					<div class="row">
+						<div class="col-md-6 col-xs-12" style="padding-top:50px;">
+							<span id="info-span" style="color:white; display:none;">The model has been downloaded, you can start writing on the white square on the right now.</span>
+							<br/><br/>
+							<h2 id="guess" class="d-flex justify-content-center" style="color:white;"></p>
+						</div>
+						<div class="col-md-6 col-xs-12">
+							<div id="canvas-container" class="d-flex justify-content-center fh5co-hero-smartphone animated fadeInRight wow" data-wow-delay="1s" width="280" height="280"></div>
+							<canvas id="dest" width="28" height="28" style="display:none;"></canvas>
+						</div>
+					</div>
+				</div>
+			</div> <!-- first section wrapper -->
 
 
 
-        const context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        // destCtx.clearRect(0, 0, 28, 28);
-    });
+			<!-- ==========================================================================================================
+			SECTION 7 - SUB FOOTER
+			========================================================================================================== -->
 
-    // will it be better to listen move/end events on the window?
-    var imgArray = Array(28);
-    for (var i=0; i < imgArray.length; i++) {
-        imgArray[i] = new Array(28).fill(0);
-    }
-    stage.addEventListener('mouseup touchend', function () {
-      isPaint = false;
+			<footer class="footer-outer">
+				<div class="container footer-inner">
 
+					<div class="footer-three-grid wow fadeIn animated" data-wow-delay="0.66s">
+						<div class="column-1-3">
+							<h4 style="color:white;">onlineMNIST</h3>
+						</div>
+						<div class="column-2-3">
+							<nav class="footer-nav">
+								<ul>
+									<a href="#" onclick="$('#fh5co-hero-wrapper').goTo();return false;"><li>Home</li></a>
+									<a href="#" onclick="$('#fh5co-features').goTo();return false;"><li>Features</li></a>
+									<a href="#" onclick="$('#fh5co-reviews').goTo();return false;"><li>Reviews</li></a>
+									<a href="#" onclick="$('#fh5co-download').goTo();return false;"><li class="active">Download</li></a>
+								</ul>
+							</nav>
+						</div>
+						<div class="column-3-3">
+							<div class="social-icons-footer">
+								<a href="https://github.com/gnuevo/onlineMNIST"><i class="fab fa-github"></i></a>
+							</div>
+						</div>
+					</div>
 
-      var destCtx = destCanvas.getContext("2d");
-      destCtx.clearRect(0, 0, 28, 28);
-      destCtx.drawImage(canvas, 0, 0, 28, 28);
-      // document.getElementById('frame').src = destCanvas.toDataURL("image/png");
-      predict();
+					<span class="border-bottom-footer"></span>
 
-      // predict
-      // var imgData = destCtx.getImageData(0, 0, 28, 28);
-      //
-      // var canvasCtx = canvas.getContext("2d");
-      // canvasCtx.scale(0.1, 0.1);
-      // var imgData = canvasCtx.getImageData(0, 0, 28, 28);
-      //
-      // var pixels  = imgData.data;
-      // for (var i=0; i < pixels.length - 1; i += 4) {
-      //   console.log(i);
-      //   console.log(pixels[i], pixels[i+1], pixels[i+2]);
-      //   var grayscale = (pixels[i] + pixels[i+1] + pixels[i+2])/3.0;
-      //   grayscale = grayscale / 255.0;
-      //   grayscale = 1.0 - grayscale;
-      //   imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
-      // }
-      // console.log(imgArray);
-      //
-      // model.then(async function(m) {
-      //   var result = m.predict(tf.tensor([imgArray]));
-      //   result.print();
-      //   result = await result.data();
-      //   console.log(result);
-      //   console.log("Maximum ", Math.max(result));
-      //   var array =  Array.prototype.slice.call(result);
-      //   console.log(array);
-      //   console.log(Math.max.apply(Math, array));
-      //   var index = result.indexOf(Math.max.apply(Math, array));
-      //   console.log("I think it is ", index);
-      // });
-    });
+					<p class="copyright">&copy; 2019 onlineMNIST. Created by <a href="https://github.com/gnuevo">gnuevo</a> using the <a href="https://freehtml5.co/preview/?item=app-free-html5-app-template-built-with-bootstrap-4">FreeHTML5 App</a> template.</p>
 
-    function predict() {
-        document.getElementById('guess').innerHTML = "Pensando...";
-        // predict
-        var destCtx = destCanvas.getContext("2d");
-        var imgData = destCtx.getImageData(0, 0, 28, 28);
-        var pixels  = imgData.data;
-        for (var i=0; i < pixels.length - 1; i += 4) {
-          // console.log(i);
-          // console.log(pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]);
-          // var grayscale = (pixels[i] + pixels[i+1] + pixels[i+2])/3.0;
-          var grayscale = pixels[i+3];
-          grayscale = grayscale / 255.0;
-          // grayscale = 1.0 - grayscale;
-          imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
-          // imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
-        }
-        console.log(imgArray);
-
-        model.then(async function(m) {
-          var result = m.predict(tf.tensor([imgArray]));
-          result.print();
-          result = await result.data();
-          console.log(result);
-          console.log("Maximum ", Math.max(result));
-          var array =  Array.prototype.slice.call(result);
-          console.log(array);
-          console.log(Math.max.apply(Math, array));
-          var index = result.indexOf(Math.max.apply(Math, array));
-          console.log("I think it is ", index);
-          document.getElementById('guess').innerHTML = "Creo que es " + index;
-        });
-    }
-
-    // and core function - drawing
-    stage.addEventListener('mousemove touchmove', function () {
-      if (!isPaint) {
-        return;
-      }
-
-      if (mode === 'brush') {
-        context.globalCompositeOperation = 'source-over';
-      }
-      if (mode === 'eraser') {
-        context.globalCompositeOperation = 'destination-out';
-      }
-      context.beginPath();
-
-      var localPos = {
-        x: lastPointerPosition.x - image.x(),
-        y: lastPointerPosition.y - image.y()
-      };
-      context.moveTo(localPos.x, localPos.y);
-      var pos = stage.getPointerPosition();
-      localPos = {
-        x: pos.x - image.x(),
-        y: pos.y - image.y()
-      };
-      context.lineTo(localPos.x, localPos.y);
-      context.closePath();
-      context.stroke();
+				</div>
+			</footer>
 
 
-      lastPointerPosition = pos;
-      layer.batchDraw();
-    });
-
-    var select = document.getElementById('tool');
-    select.addEventListener('change', function () {
-      mode = select.value;
-    });
-
-  </script>
 
 
-</body>
+		</div> <!-- main page wrapper -->
 
-</html>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/owl.carousel.js"></script>
+		<script src="js/wow.min.js"></script>
+		<script src="js/main.js"></script>
+
+		<script>
+		var model = null;
+		var isModelDownloaded = false;
+		async function downloadModel() {
+			console.log("Fetching the model")
+			document.getElementById('download-btn').innerHTML = "Downloading...";
+			const model_ = await tf.loadModel('https://gnuevo.github.io/onlineMNIST/tfjsmodel/model.json');
+			document.getElementById('download-btn').innerHTML = "Done";
+			document.getElementById('info-span').style.display = "inline";
+			isModelDownloaded = true;
+			console.log("I can't believe it worked! :O");
+			return model_
+		};
+		console.log("Running");
+		document.getElementById('clear-btn').addEventListener('click', function () {
+			console.log("hey");
+			var context = $("#canvas-container div.konvajs-content canvas")[0].getContext('2d');
+			// var context = document.getElementById("mycanvas").getContext('2d');
+			context.clearRect(0, 0, canvas.width, canvas.height);
+		});
+		document.getElementById('download-btn').addEventListener('click', function () {
+			if (!isModelDownloaded) {
+				model = downloadModel();
+			} else {
+				document.getElementById('download-btn').innerHTML = "Already downloaded!";
+				setTimeout(function() {
+					document.getElementById('download-btn').innerHTML = "Done";
+				}, 800);
+			}
+		});
+		</script>
+
+		<script>
+		var width = window.innerWidth;
+		var height = window.innerHeight - 25;
+
+		// first we need Konva core things: stage and layer
+		var stage = new Konva.Stage({
+			container: 'canvas-container',
+			width: 280,
+			height: 280
+		});
+		$("#canvas-container div.konvajs-content")[0].style.backgroundColor = "rgba(230, 230, 230, 0.5)";
+
+		var layer = new Konva.Layer();
+		stage.add(layer);
+
+		var destCanvas = document.getElementById("dest");
+
+		// then we are going to draw into special canvas element
+		var canvas = document.createElement('canvas');
+		canvas.id = "mycanvas";
+		canvas.width = stage.width();
+		canvas.height = stage.height();
+
+		// created canvas we can add to layer as "Konva.Image" element
+		var image = new Konva.Image({
+			image: canvas,
+			x: 0,//stage.width() / 8,
+			y: 0,//stage.height() / 8,
+			stroke: 'white',
+			shadowBlur: 0
+		});
+		layer.add(image);
+		stage.draw();
+
+		// Good. Now we need to get access to context element
+		var context = canvas.getContext('2d');
+		context.strokeStyle = "#ffffff";
+		context.lineJoin = "round";
+		context.lineWidth = 10;
+
+
+		var isPaint = false;
+		var lastPointerPosition;
+		var mode = 'brush';
+
+
+		// now we need to bind some events
+		// we need to start drawing on mousedown
+		// and stop drawing on mouseup
+		image.on('mousedown touchstart', function () {
+			isPaint = true;
+			lastPointerPosition = stage.getPointerPosition();
+
+			const context = canvas.getContext('2d');
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			// destCtx.clearRect(0, 0, 28, 28);
+		});
+
+		// will it be better to listen move/end events on the window?
+		var imgArray = Array(28);
+		for (var i=0; i < imgArray.length; i++) {
+			imgArray[i] = new Array(28).fill(0);
+		}
+		stage.addEventListener('mouseup touchend', function () {
+			isPaint = false;
+
+
+			var destCtx = destCanvas.getContext("2d");
+			destCtx.clearRect(0, 0, 28, 28);
+			destCtx.drawImage(canvas, 0, 0, 28, 28);
+			// document.getElementById('frame').src = destCanvas.toDataURL("image/png");
+			predict();
+		});
+
+		function predict() {
+			document.getElementById('guess').innerHTML = "Thinking...";
+			// predict
+			var destCtx = destCanvas.getContext("2d");
+			var imgData = destCtx.getImageData(0, 0, 28, 28);
+			var pixels  = imgData.data;
+			for (var i=0; i < pixels.length - 1; i += 4) {
+				// console.log(i);
+				// console.log(pixels[i], pixels[i+1], pixels[i+2], pixels[i+3]);
+				// var grayscale = (pixels[i] + pixels[i+1] + pixels[i+2])/3.0;
+				var grayscale = pixels[i+3];
+				grayscale = grayscale / 255.0;
+				// grayscale = 1.0 - grayscale;
+				imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
+				// imgArray[Math.floor(i/4/28)][i/4%28] = grayscale;
+			}
+			console.log(imgArray);
+
+			model.then(async function(m) {
+				var result = m.predict(tf.tensor([imgArray]));
+				result.print();
+				result = await result.data();
+				console.log(result);
+				console.log("Maximum ", Math.max(result));
+				var array =  Array.prototype.slice.call(result);
+				console.log(array);
+				console.log(Math.max.apply(Math, array));
+				var index = result.indexOf(Math.max.apply(Math, array));
+				console.log("I think it is ", index);
+				document.getElementById('guess').innerHTML = "I think it's a  <span class='badge badge-warning' style='color:white;'>" + index + "</span>";
+			});
+		}
+
+		// and core function - drawing
+		stage.addEventListener('mousemove touchmove', function () {
+			if (!isPaint) {
+				return;
+			}
+
+			if (mode === 'brush') {
+				context.globalCompositeOperation = 'source-over';
+			}
+			if (mode === 'eraser') {
+				context.globalCompositeOperation = 'destination-out';
+			}
+			context.beginPath();
+
+			var localPos = {
+				x: lastPointerPosition.x - image.x(),
+				y: lastPointerPosition.y - image.y()
+			};
+			context.moveTo(localPos.x, localPos.y);
+			var pos = stage.getPointerPosition();
+			localPos = {
+				x: pos.x - image.x(),
+				y: pos.y - image.y()
+			};
+			context.lineTo(localPos.x, localPos.y);
+			context.closePath();
+			context.stroke();
+
+
+			lastPointerPosition = pos;
+			layer.batchDraw();
+		});
+
+		var select = document.getElementById('tool');
+		select.addEventListener('change', function () {
+			mode = select.value;
+		});
+
+		</script>
+	</body>
+	</html>
